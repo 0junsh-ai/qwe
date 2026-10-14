@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>장르 추천 받기 | 웹툰 취향 탐험</title>
+<style>
+:root{--ink:#202437;--muted:#697086;--line:#e7e9f1;--purple:#6957e8;--lav:#f1efff;--bg:#f7f8fc;--white:#fff}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#f5f3ff 0,#f8f9fc 280px);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)}
+main{max-width:960px;margin:0 auto;padding:34px 18px 60px}.hero{text-align:center;padding:20px 0 26px}.eyebrow{display:inline-block;background:#e7e3ff;color:#5544c9;font-weight:800;font-size:12px;letter-spacing:.08em;padding:7px 12px;border-radius:99px}
+h1{font-size:clamp(30px,5vw,44px);letter-spacing:-.04em;margin:14px 0 8px}.hero p{color:var(--muted);margin:0;line-height:1.65}
+.panel{background:var(--white);border:1px solid var(--line);border-radius:22px;padding:24px;box-shadow:0 12px 35px #24264a0a;margin-bottom:18px}
+.panel h2{font-size:17px;margin:0 0 15px}.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.field label{display:block;font-size:13px;font-weight:750;margin-bottom:8px}
+select{width:100%;padding:12px 13px;border:1px solid #dfe1ec;border-radius:12px;background:white;font:inherit;color:var(--ink);outline-color:var(--purple)}
+.genre-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.genre{border:1px solid var(--line);background:#fff;border-radius:12px;padding:11px 8px;font:inherit;font-size:14px;cursor:pointer;transition:.15s}.genre:hover{border-color:#b8afff}.genre.active{background:var(--lav);border-color:var(--purple);color:#5140c8;font-weight:800}
+.actions{display:flex;gap:10px;margin-top:20px}.primary,.secondary{border:0;border-radius:13px;padding:14px 18px;font:inherit;font-weight:800;cursor:pointer}.primary{background:var(--purple);color:white;flex:1;box-shadow:0 7px 18px #6957e82c}.primary:hover{background:#5846d5}.secondary{background:#f0f1f7;color:#43485d}
+.note{font-size:12px;color:var(--muted);line-height:1.6;margin:14px 0 0}.results-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px}.results-head h2{margin:0;font-size:22px}.count{font-size:12px;background:#f0efff;color:#5846d5;padding:6px 10px;border-radius:99px;font-weight:800}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.work{border:1px solid var(--line);border-radius:16px;padding:17px;display:flex;flex-direction:column;gap:9px;min-width:0}.work-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}.work h3{font-size:17px;margin:0;line-height:1.4}.recommend{font-size:10px;white-space:nowrap;background:#fff1cf;color:#8b5a00;border-radius:6px;padding:5px 7px;font-weight:900}.meta{display:flex;flex-wrap:wrap;gap:6px}.tag{font-size:11px;color:#555d74;background:#f1f2f7;border-radius:6px;padding:4px 7px}.desc{font-size:13px;line-height:1.6;color:#5e6579;margin:0;flex:1}.links{display:flex;gap:8px;flex-wrap:wrap;margin-top:3px}.links a{font-size:12px;font-weight:750;text-decoration:none;color:#5947d4;background:#f2f0ff;border-radius:8px;padding:8px 10px}.links a:hover{text-decoration:underline}.popular{margin-top:22px}.popular h3{font-size:16px;margin:0 0 11px}.popular-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.popular-item{background:#fafaff;border:1px solid #ecebfa;border-radius:11px;padding:11px 12px;font-size:13px;display:flex;justify-content:space-between;gap:8px}.popular-item span{color:var(--muted);font-size:11px;white-space:nowrap}.empty{text-align:center;color:var(--muted);padding:28px 10px}.footer{text-align:center;color:#8a8fa1;font-size:11px;line-height:1.7;padding-top:18px}
+@media(max-width:620px){main{padding:20px 13px 40px}.panel{padding:18px;border-radius:18px}.field-grid{grid-template-columns:1fr}.genre-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.genre{font-size:13px;padding:10px 5px}.cards,.popular-list{grid-template-columns:1fr}.hero{padding-top:10px}.actions{flex-direction:column}.secondary{width:100%}}
+</style>
+</head>
+<body>
+<main>
+  <header class="hero">
+    <span class="eyebrow">WEBTOON PICKER</span>
+    <h1>오늘은 어떤 웹툰을 볼까?</h1>
+    <p>취향에 맞는 장르를 골라 보세요.<br>네이버웹툰과 카카오웹툰 작품 중에서 추천해 드릴게요.</p>
+  </header>
+  <section class="panel">
+    <h2>1. 추천 조건 설정</h2>
+    <div class="field-grid">
+      <div class="field"><label for="age">연령대</label><select id="age">
+        <option value="child">초등학생 (12세 이하)</option><option value="teen" selected>청소년 (13~18세)</option><option value="adult">성인 (19세 이상)</option>
+      </select></div>
+      <div class="field"><label for="amount">한 번에 추천받을 작품 수</label><select id="amount">
+        <option value="1">1개</option><option value="2">2개</option><option value="3" selected>3개</option><option value="4">4개</option><option value="5">5개</option><option value="6">6개</option><option value="8">8개</option><option value="10">10개</option>
+      </select></div>
+    </div>
+    <h2 style="margin-top:22px">2. 관심 장르 선택</h2>
+    <div class="genre-grid" id="genres"></div>
+    <div class="actions"><button class="primary" id="recommend">장르 추천 받기 ✨</button><button class="secondary" id="reset">초기화</button></div>
+    <p class="note">여러 장르를 선택할 수 있어요. 장르를 고르지 않고 추천 버튼을 누르면 전체 장르에서 골라 드립니다.</p>
+  </section>
+  <section class="panel" id="resultPanel" aria-live="polite">
+    <div class="results-head"><h2>추천 결과</h2><span class="count" id="resultCount">아직 추천 전</span></div>
+    <div class="empty" id="empty">위에서 장르와 연령대를 선택하고<br><b>‘장르 추천 받기’</b>를 눌러 보세요!</div>
+    <div class="cards" id="cards"></div>
+    <div class="popular" id="popular" hidden><h3>이 장르의 인기작 더 보기</h3><div class="popular-list" id="popularList"></div></div>
+  </section>
+  <p class="footer">작품의 장르·이용 등급·연재 상태는 플랫폼에서 변경될 수 있어요. 실제 이용 전 각 작품 페이지의 이용등급을 확인하세요.<br>작품 목록은 장르별 추천용 예시이며, 실시간 인기 순위를 의미하지 않습니다.</p>
+</main>
+<script>
+const genres=["로맨스","판타지","액션","드라마","스릴러","미스터리","코미디","사극","일상","공상과학","스포츠","감성","학원물","호러"];
+const data=[
+{t:"작전명 순정",p:"네이버웹툰",g:["로맨스","드라마","학원물"],age:13,strong:true,d:"관계와 감정의 변화를 따라가는 청춘 로맨스.",url:"https://comic.naver.com/"},
+{t:"이번 생도 잘 부탁해",p:"네이버웹툰",g:["로맨스","판타지","드라마"],age:13,strong:true,d:"전생의 기억을 가진 주인공이 인연을 다시 찾아가는 이야기.",url:"https://comic.naver.com/"},
+{t:"여신강림",p:"네이버웹툰",g:["로맨스","드라마","학원물","코미디"],age:13,strong:false,d:"외모와 관계, 성장에 관한 청춘 로맨스.",url:"https://comic.naver.com/"},
+{t:"세기말 풋사과 보습학원",p:"네이버웹툰",g:["로맨스","일상","학원물","감성"],age:13,strong:true,d:"90년대 학창 시절의 풋풋한 감정과 우정.",url:"https://comic.naver.com/"},
+{t:"화산귀환",p:"네이버웹툰",g:["판타지","액션","사극","코미디"],age:15,strong:true,d:"다시 살아난 무인이 문파를 재건하는 무협 판타지.",url:"https://comic.naver.com/"},
+{t:"신의 탑",p:"네이버웹툰",g:["판타지","액션","미스터리"],age:12,strong:true,d:"탑의 비밀을 풀며 시험과 모험을 이어가는 대서사.",url:"https://comic.naver.com/"},
+{t:"전지적 독자 시점",p:"네이버웹툰",g:["판타지","액션","미스터리"],age:15,strong:true,d:"소설 속 세계가 현실이 된 뒤 살아남기 위한 여정.",url:"https://comic.naver.com/"},
+{t:"마루는 강쥐",p:"네이버웹툰",g:["코미디","일상","감성"],age:12,strong:true,d:"강아지가 사람이 된 뒤 벌어지는 유쾌한 일상.",url:"https://comic.naver.com/"},
+{t:"유미의 세포들",p:"네이버웹툰",g:["로맨스","코미디","일상","드라마"],age:12,strong:true,d:"주인공의 마음속 세포들을 통해 보는 사랑과 일상.",url:"https://comic.naver.com/"},
+{t:"가비지타임",p:"네이버웹툰",g:["스포츠","드라마","학원물"],age:12,strong:true,d:"고교 농구부 선수들의 성장과 팀워크.",url:"https://comic.naver.com/"},
+{t:"연의 편지",p:"네이버웹툰",g:["미스터리","감성","드라마","학원물"],age:12,strong:true,d:"편지의 단서를 따라가며 우정과 상처를 마주하는 이야기.",url:"https://comic.naver.com/"},
+{t:"기기괴괴",p:"네이버웹툰",g:["호러","미스터리","스릴러"],age:15,strong:false,d:"기묘한 설정과 반전으로 이어지는 공포 단편들.",url:"https://comic.naver.com/"},
+{t:"스위트홈",p:"네이버웹툰",g:["호러","스릴러","액션","드라마"],age:19,strong:false,d:"괴물화가 퍼진 세상에서 살아남으려는 사람들. 폭력적 장면이 있어요.",url:"https://comic.naver.com/"},
+{t:"머니게임",p:"네이버웹툰",g:["스릴러","드라마","미스터리"],age:15,strong:false,d:"제한된 공간에서 돈과 인간 심리를 둘러싼 긴장이 펼쳐져요.",url:"https://comic.naver.com/"},
+{t:"정년이",p:"네이버웹툰",g:["드라마","사극","감성"],age:12,strong:true,d:"1950년대 여성 국극을 배경으로 꿈과 경쟁을 그린 작품.",url:"https://comic.naver.com/"},
+{t:"고수",p:"네이버웹툰",g:["액션","사극","코미디"],age:15,strong:false,d:"강호를 무대로 펼쳐지는 무협 액션과 유머.",url:"https://comic.naver.com/"},
+{t:"아비무쌍",p:"카카오웹툰",g:["액션","사극","드라마"],age:15,strong:true,d:"가족을 지키려는 아버지의 무협 여정.",url:"https://webtoon.kakao.com/"},
+{t:"나 혼자만 레벨업",p:"카카오웹툰",g:["판타지","액션"],age:15,strong:true,d:"약한 헌터가 특별한 능력을 얻고 성장하는 액션 판타지.",url:"https://webtoon.kakao.com/"},
+{t:"픽 미 업!",p:"카카오웹툰",g:["판타지","액션","미스터리"],age:15,strong:false,d:"게임 속 세계에서 생존과 공략을 이어가는 이야기.",url:"https://webtoon.kakao.com/"},
+{t:"유부녀 킬러",p:"카카오웹툰",g:["액션","코미디","드라마"],age:19,strong:false,d:"액션과 코미디가 섞인 이야기. 성인 등급 여부를 확인하세요.",url:"https://webtoon.kakao.com/"},
+{t:"템빨",p:"카카오웹툰",g:["판타지","액션","코미디"],age:15,strong:false,d:"게임 세계를 배경으로 펼쳐지는 성장형 판타지.",url:"https://webtoon.kakao.com/"},
+{t:"비밀 사이",p:"카카오웹툰",g:["로맨스","드라마"],age:19,strong:false,d:"복잡한 관계와 감정선을 중심으로 전개되는 로맨스.",url:"https://webtoon.kakao.com/"},
+{t:"경이로운 소문",p:"네이버웹툰",g:["액션","판타지","드라마"],age:15,strong:false,d:"악귀를 쫓는 팀의 활약을 그린 판타지 액션.",url:"https://comic.naver.com/"},
+{t:"전자오락수호대",p:"네이버웹툰",g:["코미디","판타지","공상과학"],age:12,strong:true,d:"게임 세계의 안쪽에서 벌어지는 기발한 모험과 개그.",url:"https://comic.naver.com/"},
+{t:"용이산다",p:"네이버웹툰",g:["일상","코미디","판타지"],age:12,strong:false,d:"평범한 일상 속에 용과 판타지가 섞인 코미디.",url:"https://comic.naver.com/"},
+{t:"나노리스트",p:"네이버웹툰",g:["공상과학","액션","드라마"],age:12,strong:false,d:"인공지능 안드로이드와 인간의 관계를 다룬 SF.",url:"https://comic.naver.com/"},
+{t:"하이브",p:"네이버웹툰",g:["공상과학","스릴러","액션","호러"],age:15,strong:false,d:"곤충 재난 속 생존을 그린 스릴러. 무서운 장면이 있어요.",url:"https://comic.naver.com/"},
+{t:"더 복서",p:"네이버웹툰",g:["스포츠","드라마"],age:15,strong:true,d:"복싱을 통해 재능과 노력, 인간의 한계를 탐구하는 작품.",url:"https://comic.naver.com/"},
+{t:"윈드브레이커",p:"네이버웹툰",g:["스포츠","드라마","학원물"],age:15,strong:false,d:"자전거와 친구들을 중심으로 청춘과 경쟁을 그려요.",url:"https://comic.naver.com/"},
+{t:"소녀의 세계",p:"네이버웹툰",g:["일상","드라마","감성","학원물"],age:12,strong:true,d:"친구 관계와 자존감, 성장에 관한 따뜻한 이야기.",url:"https://comic.naver.com/"},
+{t:"마음의 소리",p:"네이버웹툰",g:["코미디","일상"],age:12,strong:true,d:"일상에서 벌어지는 황당한 사건을 다루는 개그 만화.",url:"https://comic.naver.com/"},
+{t:"어서오세요, 305호에",p:"네이버웹툰",g:["드라마","일상","감성"],age:12,strong:false,d:"함께 살아가는 사람들의 관계와 고민을 다루는 작품.",url:"https://comic.naver.com/"},
+{t:"별이삼샵",p:"네이버웹툰",g:["로맨스","학원물","감성"],age:12,strong:false,d:"학창 시절의 관계와 첫사랑을 그리는 청춘 이야기.",url:"https://comic.naver.com/"},
+{t:"낮에 뜨는 달",p:"네이버웹툰",g:["로맨스","판타지","사극","미스터리"],age:15,strong:true,d:"현대와 과거를 오가는 운명적인 인연과 비밀.",url:"https://comic.naver.com/"},
+{t:"좀비딸",p:"네이버웹툰",g:["호러","코미디","드라마"],age:12,strong:true,d:"좀비 사태 속 부녀의 일상을 유머와 감동으로 풀어내요.",url:"https://comic.naver.com/"},
+{t:"타인은 지옥이다",p:"네이버웹툰",g:["호러","스릴러","미스터리"],age:19,strong:false,d:"불안한 공동생활을 그린 심리 공포물.",url:"https://comic.naver.com/"},
+{t:"킬러 배드로",p:"네이버웹툰",g:["액션","드라마"],age:15,strong:false,d:"액션 중심으로 전개되는 복수와 생존의 이야기.",url:"https://comic.naver.com/"},
+{t:"무빙",p:"카카오웹툰",g:["액션","판타지","드라마"],age:15,strong:true,d:"초능력을 숨기고 살아가는 아이들과 부모의 이야기.",url:"https://webtoon.kakao.com/"},
+{t:"그녀가 공작저로 가야 했던 사정",p:"카카오웹툰",g:["로맨스","판타지","사극"],age:12,strong:true,d:"소설 속 세계에서 운명을 바꾸려는 로맨스 판타지.",url:"https://webtoon.kakao.com/"},
+{t:"이태원 클라쓰",p:"카카오웹툰",g:["드라마","일상"],age:15,strong:true,d:"자신만의 신념으로 목표를 향해 나아가는 청춘 드라마.",url:"https://webtoon.kakao.com/"},
+{t:"바리공주",p:"카카오웹툰",g:["판타지","사극","미스터리"],age:12,strong:false,d:"한국 설화와 신비로운 세계관을 활용한 판타지.",url:"https://webtoon.kakao.com/"}
+];
+const genreBox=document.getElementById("genres"),cards=document.getElementById("cards"),empty=document.getElementById("empty"),popular=document.getElementById("popular"),popularList=document.getElementById("popularList");
+let selected=new Set();
+genres.forEach(g=>{const b=document.createElement("button");b.className="genre";b.textContent=g;b.type="button";b.onclick=()=>{if(selected.has(g)){selected.delete(g);b.classList.remove("active")}else{selected.add(g);b.classList.add("active")}};genreBox.appendChild(b)});
+const ageName={child:"초등학생",teen:"청소년",adult:"성인"};
+function recommend(){
+ const age=document.getElementById("age").value, max=Number(document.getElementById("amount").value), gs=selected.size?[...selected]:genres;
+ // 연령대별 보수적인 필터: 초등은 12세 이하, 청소년은 15세 이하, 성인은 전체.
+ const limit=age==="child"?12:age==="teen"?15:19;
+ const pool=data.filter(x=>x.age<=limit&&x.g.some(g=>gs.includes(g)));
+ // 섞어서 다양하게 추천
+ for(let i=pool.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
+ const chosen=pool.slice(0,max);
+ cards.innerHTML="";popularList.innerHTML="";
+ empty.hidden=chosen.length>0;cards.hidden=chosen.length===0;
+ document.getElementById("resultCount").textContent=chosen.length?`${chosen.length}개 추천`:"추천 작품 없음";
+ chosen.forEach(x=>{
+  const el=document.createElement("article");el.className="work";
+  const title=document.createElement("div");title.className="work-top";
+  const h=document.createElement("h3");h.textContent=x.t;if(x.strong)h.style.fontWeight="900";
+  const rec=document.createElement("span");rec.className="recommend";rec.textContent=x.strong?"강력 추천":"추천";
+  title.append(h,rec);
+  const meta=document.createElement("div");meta.className="meta";
+  [x.p,`${x.age===12?"전체·12세 이하":x.age===13?"13세 이상":x.age===15?"15세 이상":"19세 이상"}`, ...x.g.slice(0,3)].forEach(t=>{const tag=document.createElement("span");tag.className="tag";tag.textContent=t;meta.appendChild(tag)});
+  const d=document.createElement("p");d.className="desc";d.textContent=x.d;
+  const links=document.createElement("div");links.className="links";
+  const a=document.createElement("a");a.href=x.url;a.target="_blank";a.rel="noopener noreferrer";a.textContent=x.p+" 열기";links.appendChild(a);
+  const search=document.createElement("a");search.href=x.p==="네이버웹툰"?"https://comic.naver.com/search?keyword="+encodeURIComponent(x.t):"https://webtoon.kakao.com/search?keyword="+encodeURIComponent(x.t);search.target="_blank";search.rel="noopener noreferrer";search.textContent="작품 검색";links.appendChild(search);
+  el.append(title,meta,d,links);cards.appendChild(el);
+ });
+ // 선택 장르의 대표 작품 목록(연령 필터 적용)
+ const popularWorks=data.filter(x=>x.age<=limit&&x.g.some(g=>gs.includes(g))&&!chosen.some(c=>c.t===x.t)).slice(0,8);
+ popular.hidden=popularWorks.length===0;
+ popularWorks.forEach(x=>{const row=document.createElement("div");row.className="popular-item";const name=document.createElement("b");name.textContent=x.strong?"★ "+x.t:x.t;const p=document.createElement("span");p.textContent=x.p;row.append(name,p);popularList.appendChild(row)});
+ if(chosen.length===0){empty.textContent="선택한 조건에 맞는 작품이 없어요. 연령대나 장르를 바꿔 다시 시도해 보세요."}
+ document.getElementById("resultPanel").scrollIntoView({behavior:"smooth",block:"start"});
+}
+document.getElementById("recommend").addEventListener("click",recommend);
+document.getElementById("reset").addEventListener("click",()=>{selected.clear();document.querySelectorAll(".genre").forEach(b=>b.classList.remove("active"));document.getElementById("age").value="teen";document.getElementById("amount").value="3";cards.innerHTML="";cards.hidden=false;empty.hidden=false;empty.innerHTML="위에서 장르와 연령대를 선택하고<br><b>‘장르 추천 받기’</b>를 눌러 보세요!";popular.hidden=true;document.getElementById("resultCount").textContent="아직 추천 전"});
+</script>
+</body>
+</html>
